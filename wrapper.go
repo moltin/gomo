@@ -13,7 +13,7 @@ type wrapper struct {
 	endpoint      string
 	statusCode    int
 	executionTime APIExecution
-	body          interface{}
+	body          requestBody
 	query         url.Values
 	request       *http.Request
 	response      map[string]json.RawMessage

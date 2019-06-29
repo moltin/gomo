@@ -1,14 +1,28 @@
 package gomo
 
-import "strconv"
+import (
+	"strconv"
+)
 
-// Body sets the body for a Post() or Put() request.
+// Body sets the body for a Post() or Put() request
 func Body(target interface{}) RequestResource {
 	return func(w *wrapper) {
-		w.body = target
+		w.body = jsonBody{target}
 
 		// set the resource type if the entity has the SetType method
-		if resource, ok := w.body.(interface{ SetType() }); ok {
+		if resource, ok := target.(interface{ SetType() }); ok {
+			resource.SetType()
+		}
+	}
+}
+
+// Form sets multipart/form data for a Post() or Put() request
+func Form(target interface{}) RequestResource {
+	return func(w *wrapper) {
+		w.body = formBody{data: target}
+
+		// set the resource type if the entity has the SetType method
+		if resource, ok := target.(interface{ SetType() }); ok {
 			resource.SetType()
 		}
 	}

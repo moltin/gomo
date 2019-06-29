@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/moltin/gomo/form"
 )
 
 // RequestResource are functions that provide a request with the
@@ -55,16 +58,29 @@ func (c *Client) do(wrapper *wrapper) error {
 
 }
 
-func (c Client) buildRequest(method string, endpoint string, query url.Values, body []byte) (*http.Request, error) {
-	var err error
-
-	req, err := http.NewRequest(method, c.url(endpoint), bytes.NewBuffer(body))
+func (c Client) buildRequest(
+	method string,
+	endpoint string,
+	query url.Values,
+	body requestBody,
+) (*http.Request, error) {
+	var content io.Reader
+	if body != nil {
+		var err error
+		content, err = body.Content()
+		if err != nil {
+			return nil, err
+		}
+	}
+	req, err := http.NewRequest(method, c.url(endpoint), content)
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer: %s", c.AccessToken))
-	req.Header.Add("Content-Type", "application/json")
+	if body != nil {
+		req.Header.Add("Content-Type", body.ContentType())
+	}
 	req.Header.Add("User-Agent", defaultUserAgent)
 
 	req.URL.RawQuery = query.Encode()
@@ -72,23 +88,52 @@ func (c Client) buildRequest(method string, endpoint string, query url.Values, b
 	return req, nil
 }
 
-func (c *Client) makeRequest(wrapper *wrapper) (*http.Response, error) {
-	var body []byte
+type requestBody interface {
+	ContentType() string
+	Content() (io.Reader, error)
+}
 
-	if wrapper.body != nil {
-		rb := struct {
-			Data interface{} `json:"data"`
-		}{wrapper.body}
-		rbj, err := json.Marshal(rb)
-		if err != nil {
-			return nil, err
-		}
+type jsonBody struct {
+	Data interface{} `json:"data"`
+}
 
-		body = rbj
+func (j jsonBody) ContentType() string {
+	return "application/json"
+}
+
+func (j jsonBody) Content() (io.Reader, error) {
+	var out bytes.Buffer
+	encoder := json.NewEncoder(&out)
+	err := encoder.Encode(j)
+	return &out, err
+}
+
+type formBody struct {
+	data        interface{}
+	contentType string
+}
+
+func (f formBody) ContentType() string {
+	return f.contentType
+}
+
+func (f formBody) Content() (io.Reader, error) {
+	body, contentType, err := form.Encode(f.data)
+	if err != nil {
+		return nil, err
 	}
+	f.contentType = contentType
+	return bytes.NewBuffer(body), nil
+}
 
-	req, err := c.buildRequest(wrapper.method, wrapper.endpoint, wrapper.query, body)
-	wrapper.request = req
+func (c *Client) makeRequest(wrapper *wrapper) (*http.Response, error) {
+	var err error
+	wrapper.request, err = c.buildRequest(
+		wrapper.method,
+		wrapper.endpoint,
+		wrapper.query,
+		wrapper.body,
+	)
 	if err != nil {
 		return nil, err
 	}
