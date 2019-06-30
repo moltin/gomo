@@ -232,7 +232,7 @@ func ExampleInclude() {
 	}
 	err := client.Get(
 		"categories/"+id,
-		gomo.Include("produces"),
+		gomo.Include("products"),
 		gomo.Included(&included),
 	)
 	if err != nil {
