@@ -450,7 +450,7 @@ func TestPostProductWithFlows(t *testing.T) {
 	}
 	err := client.Post(
 		"products",
-		gomo.Body(&product),
+		gomo.Body(product),
 		gomo.Data(&product),
 	)
 	if err != nil {

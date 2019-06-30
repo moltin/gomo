@@ -1,6 +1,9 @@
 package core
 
-import "bytes"
+import (
+	"bytes"
+	"io"
+)
 
 // FileUploadRequest represents a request to upload a file to Moltin
 type FileUploadRequest struct {
@@ -10,17 +13,18 @@ type FileUploadRequest struct {
 
 // File is a Moltin File - https://docs.moltin.com/advanced/files
 type File struct {
-	ID       string    `json:"id,omitempty"`
-	Type     string    `json:"type"`
-	FileName string    `json:"file_name"`
-	Public   bool      `json:"public"`
-	MimeType string    `json:"mime_type"`
-	FileSize int       `json:"file_size"`
-	Meta     *FileMeta `json:"meta,omitempty"`
+	ID       string    `json:"id,omitempty" form:"-"`
+	Type     string    `json:"type" form:"-"`
+	FileName string    `json:"file_name" form:"file_name,omitempty"`
+	Public   bool      `json:"public" form:"public"`
+	MimeType string    `json:"mime_type" form:"mime_type,omitempty"`
+	FileSize int       `json:"file_size" form:"file_size,omitempty"`
+	Meta     *FileMeta `json:"meta,omitempty" form:"-"`
 	Link     *struct {
 		Href string `json:"href"`
-	} `json:"link"`
-	Links *Links `json:"links,omitempty"`
+	} `json:"link" form:"-"`
+	Links *Links    `json:"links,omitempty" form:"-"`
+	File  io.Reader `json:"-" form:"file"`
 }
 
 // FileMeta represents the meta object for a moltin file entity

@@ -8,7 +8,11 @@ import (
 func TestBody(t *testing.T) {
 	var w wrapper
 	Body("foobar")(&w)
-	if s, ok := w.body.(string); !ok || s != "foobar" {
+	body, ok := w.body.(jsonBody)
+	if !ok {
+		t.Fatal("failed to set json body")
+	}
+	if s, ok := body.Data.(string); !ok || s != "foobar" {
 		t.Fatal("failed to set data")
 	}
 }

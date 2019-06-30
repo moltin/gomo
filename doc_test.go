@@ -3,6 +3,7 @@ package gomo_test
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/moltin/gomo"
 	"github.com/moltin/gomo/core"
@@ -192,7 +193,7 @@ func ExampleClient_Post() {
 	}
 	err := client.Post(
 		"products",
-		gomo.Body(&product),
+		gomo.Body(product),
 		gomo.Data(&product),
 	)
 	if err != nil {
@@ -260,4 +261,30 @@ func ExampleSort() {
 	for _, product := range productsByName {
 		fmt.Println(product.Name)
 	}
+}
+
+func ExampleForm() {
+	client := gomo.NewClient()
+	_ = client.Authenticate()
+
+	img, err := os.Open("/tmp/product.jpg")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file := core.File{
+		FileName: "product.jpg",
+		Public:   true,
+		MimeType: "image/jpeg",
+		File:     img,
+	}
+	err = client.Post(
+		"files",
+		gomo.Form(file),
+		gomo.Data(&file),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("File ID: %s\n", file.ID)
 }
