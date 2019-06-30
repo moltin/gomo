@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func TestModifierType(t *testing.T) {
@@ -26,9 +28,7 @@ func TestModifierMarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "name_equals",
-				Value: ModifierValue{
-					ModifierValuePlain: ModifierValuePlain{"foo"},
-				},
+				Value:        &ModifierValuePlain{"foo"},
 			},
 			`{"type":"modifier","modifier_type":"name_equals","value":"foo"}`,
 		},
@@ -37,11 +37,9 @@ func TestModifierMarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "sku_builder",
-				Value: ModifierValue{
-					ModifierValueBuilder: ModifierValueBuilder{
-						Seek: "foo",
-						Set:  "bar",
-					},
+				Value: &ModifierValueBuilder{
+					Seek: "foo",
+					Set:  "bar",
 				},
 			},
 			`{"type":"modifier","modifier_type":"sku_builder","value":{"seek":"foo","set":"bar"}}`,
@@ -51,12 +49,10 @@ func TestModifierMarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "price_equals",
-				Value: ModifierValue{
-					ModifierValuePrice: ModifierValuePrice{
-						Amount:      100,
-						Currency:    "USD",
-						IncludesTax: true,
-					},
+				Value: &ModifierValuePrice{
+					Amount:      100,
+					Currency:    "USD",
+					IncludesTax: true,
 				},
 			},
 			`{"type":"modifier","modifier_type":"price_equals","value":{"amount":100,"currency":"USD","includes_tax":true}}`,
@@ -90,9 +86,7 @@ func TestModiferUnmarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "name_equals",
-				Value: ModifierValue{
-					ModifierValuePlain: ModifierValuePlain{"foo"},
-				},
+				Value:        &ModifierValuePlain{"foo"},
 			},
 		},
 		{
@@ -101,11 +95,9 @@ func TestModiferUnmarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "sku_builder",
-				Value: ModifierValue{
-					ModifierValueBuilder: ModifierValueBuilder{
-						Seek: "foo",
-						Set:  "bar",
-					},
+				Value: &ModifierValueBuilder{
+					Seek: "foo",
+					Set:  "bar",
 				},
 			},
 		},
@@ -115,12 +107,10 @@ func TestModiferUnmarshalJSON(t *testing.T) {
 			Modifier{
 				Type:         "modifier",
 				ModifierType: "price_equals",
-				Value: ModifierValue{
-					ModifierValuePrice: ModifierValuePrice{
-						Amount:      100,
-						Currency:    "USD",
-						IncludesTax: true,
-					},
+				Value: &ModifierValuePrice{
+					Amount:      100,
+					Currency:    "USD",
+					IncludesTax: true,
 				},
 			},
 		},
@@ -133,9 +123,9 @@ func TestModiferUnmarshalJSON(t *testing.T) {
 			}
 			if !reflect.DeepEqual(modifier, test.expected) {
 				t.Errorf(
-					"\nexpected: %#v\ngot:       %#v\n",
-					test.expected,
-					modifier,
+					"\nexpected: %s\ngot:       %s\n",
+					spew.Sdump(test.expected),
+					spew.Sdump(modifier),
 				)
 			}
 		})

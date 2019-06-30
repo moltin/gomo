@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // Modifier represents a modifier for a variation option:
@@ -15,10 +14,8 @@ type Modifier struct {
 
 // ModifierValue repesents a number of possible structures depending
 // on the modifier type
-type ModifierValue struct {
-	ModifierValuePlain
-	ModifierValueBuilder
-	ModifierValuePrice
+type ModifierValue interface {
+	modifierMember()
 }
 
 // ModifierValuePlain is used for modifier types: description_equals,
@@ -29,11 +26,23 @@ type ModifierValuePlain struct {
 	Value string
 }
 
+func (_ *ModifierValuePlain) modifierMember() {}
+
+func (v *ModifierValuePlain) MarshalJSON() ([]byte, error) {
+	return json.Marshal(v.Value)
+}
+
+func (v *ModifierValuePlain) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &v.Value)
+}
+
 // ModifierValueBuilder is used for modifier types: sku_builder, slug_builder
 type ModifierValueBuilder struct {
 	Seek string `json:"seek"`
 	Set  string `json:"set"`
 }
+
+func (_ *ModifierValueBuilder) modifierMember() {}
 
 // ModifierValuePrice is used for modifier types: price_increment,
 // price_decrement, price_equals
@@ -43,21 +52,14 @@ type ModifierValuePrice struct {
 	IncludesTax bool   `json:"includes_tax"`
 }
 
+func (_ *ModifierValuePrice) modifierMember() {}
+
 // SetType sets the resource type on the struct
 func (m *Modifier) SetType() {
 	m.Type = modifierType
 }
 
-type modifierValueType int
-
-const (
-	modifierValueTypeInvalid = iota
-	modifierValueTypePlain
-	modifierValueTypeBuilder
-	modifierValueTypePrice
-)
-
-func parseModifierType(mtype string) (t modifierValueType) {
+func modifierValueFor(mtype string) ModifierValue {
 	switch mtype {
 	case
 		"description_equals",
@@ -74,93 +76,31 @@ func parseModifierType(mtype string) (t modifierValueType) {
 		"sku_prepend",
 		"sku_append",
 		"status":
-		t = modifierValueTypePlain
+		return &ModifierValuePlain{""}
 	case
 		"sku_builder",
 		"slug_builder":
-		t = modifierValueTypeBuilder
+		return &ModifierValueBuilder{}
 	case
 		"price_increment",
 		"price_decrement",
 		"price_equals":
-		t = modifierValueTypePrice
-	default:
-		t = modifierValueTypeInvalid
+		return &ModifierValuePrice{}
 	}
-	return
-}
-
-// MarshalJSON marshals a Modifier into JSON
-func (m Modifier) MarshalJSON() ([]byte, error) {
-	mtype := m.ModifierType
-	mod := struct {
-		ID           string      `json:"id,omitempty"`
-		Type         string      `json:"type"`
-		ModifierType string      `json:"modifier_type"`
-		Value        interface{} `json:"value"`
-	}{
-		ID:           m.ID,
-		Type:         m.Type,
-		ModifierType: mtype,
-	}
-	switch parseModifierType(mtype) {
-	case modifierValueTypePlain:
-		mod.Value = m.Value.ModifierValuePlain.Value
-	case modifierValueTypeBuilder:
-		mod.Value = m.Value.ModifierValueBuilder
-	case modifierValueTypePrice:
-		mod.Value = m.Value.ModifierValuePrice
-	default:
-		return nil, fmt.Errorf("unknown modifier type: %s", mtype)
-	}
-	return json.Marshal(mod)
+	return nil
 }
 
 // UnmarshalJSON unmarshals a Modifier from JSON
 func (m *Modifier) UnmarshalJSON(b []byte) error {
-	mod := struct {
-		ID           string `json:"id,omitempty"`
-		Type         string `json:"type"`
-		ModifierType string `json:"modifier_type"`
-	}{}
-	err := json.Unmarshal(b, &mod)
+	type Alias Modifier
+	modifier := struct {
+		*Alias
+		Value json.RawMessage `json:"value"`
+	}{Alias: (*Alias)(m)}
+	err := json.Unmarshal(b, &modifier)
 	if err != nil {
 		return err
 	}
-	mtype := mod.ModifierType
-	m.ID = mod.ID
-	m.Type = mod.Type
-	m.ModifierType = mtype
-	switch parseModifierType(mtype) {
-	case modifierValueTypePlain:
-		value := struct {
-			Value string `json:"value"`
-		}{}
-		err := json.Unmarshal(b, &value)
-		if err != nil {
-			return err
-		}
-		m.Value.ModifierValuePlain.Value = value.Value
-	case modifierValueTypeBuilder:
-		value := struct {
-			Value ModifierValueBuilder `json:"value"`
-		}{}
-		err := json.Unmarshal(b, &value)
-		if err != nil {
-			return err
-		}
-		m.Value.ModifierValueBuilder = value.Value
-	case modifierValueTypePrice:
-		value := struct {
-			Value ModifierValuePrice `json:"value"`
-		}{}
-		err := json.Unmarshal(b, &value)
-		if err != nil {
-			return err
-		}
-		m.Value.ModifierValuePrice = value.Value
-	default:
-		return fmt.Errorf("unknown modifier type: %s", mtype)
-	}
-	return nil
+	m.Value = modifierValueFor(m.ModifierType)
+	return json.Unmarshal(modifier.Value, m.Value)
 }
