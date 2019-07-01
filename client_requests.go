@@ -113,11 +113,11 @@ type formBody struct {
 	contentType string
 }
 
-func (f formBody) ContentType() string {
+func (f *formBody) ContentType() string {
 	return f.contentType
 }
 
-func (f formBody) Content() (io.Reader, error) {
+func (f *formBody) Content() (io.Reader, error) {
 	body, contentType, err := form.Encode(f.data)
 	if err != nil {
 		return nil, err

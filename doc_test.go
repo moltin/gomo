@@ -7,6 +7,7 @@ import (
 
 	"github.com/moltin/gomo"
 	"github.com/moltin/gomo/core"
+	"github.com/moltin/gomo/form"
 )
 
 func Example() {
@@ -276,7 +277,10 @@ func ExampleForm() {
 		FileName: "product.jpg",
 		Public:   true,
 		MimeType: "image/jpeg",
-		File:     img,
+		File: &form.File{
+			Name:    "product.jpg",
+			Content: img,
+		},
 	}
 	err = client.Post(
 		"files",

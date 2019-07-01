@@ -1,7 +1,6 @@
 package form_test
 
 import (
-	"io"
 	"strings"
 	"testing"
 
@@ -42,12 +41,16 @@ BOUNDARY--
 		{
 			"reader",
 			struct {
-				Name io.Reader `form:"name"`
+				Name *form.File `form:"name"`
 			}{
-				Name: strings.NewReader("test"),
+				Name: &form.File{
+					Name:    "test.txt",
+					Content: strings.NewReader("test"),
+				},
 			},
 			`BOUNDARY
-Content-Disposition: form-data; name="name"
+Content-Disposition: form-data; name="name"; filename="test.txt"
+Content-Type: application/octet-stream
 
 test
 BOUNDARY--
