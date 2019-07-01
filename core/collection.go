@@ -18,8 +18,3 @@ type Collection struct {
 type CollectionIncludes struct {
 	Products []Product `json:"products"`
 }
-
-// SetType sets the resource type on the struct
-func (c *Collection) SetType() {
-	c.Type = collectionType
-}

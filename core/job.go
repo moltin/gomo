@@ -10,8 +10,3 @@ type Job struct {
 	Status     string      `json:"status,omitempty"`
 	Timestamps *Timestamps `json:"timestamps,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (j *Job) SetType() {
-	j.Type = jobType
-}

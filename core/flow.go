@@ -13,8 +13,3 @@ type Flow struct {
 	} `json:"meta,omitempty"`
 	Relationships *Relationships `json:"relationships,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (f *Flow) SetType() {
-	f.Type = flowType
-}

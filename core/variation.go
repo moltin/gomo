@@ -79,8 +79,3 @@ func (m *VariationMatrix) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
-
-// SetType sets the resource type on the struct
-func (f *Variation) SetType() {
-	f.Type = variationType
-}

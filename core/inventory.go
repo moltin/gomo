@@ -8,8 +8,3 @@ type Inventory struct {
 	Available int64  `json:"available"`
 	Allocated int64  `json:"allocated"`
 }
-
-// SetType sets the resource type on the struct
-func (i *Inventory) SetType() {
-	i.Type = inventoryType
-}

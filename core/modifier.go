@@ -54,11 +54,6 @@ type ModifierValuePrice struct {
 
 func (_ *ModifierValuePrice) modifierMember() {}
 
-// SetType sets the resource type on the struct
-func (m *Modifier) SetType() {
-	m.Type = modifierType
-}
-
 func modifierValueFor(mtype string) ModifierValue {
 	switch mtype {
 	case

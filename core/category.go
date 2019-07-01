@@ -18,8 +18,3 @@ type Category struct {
 type CategoryIncludes struct {
 	Products []Product `json:"products"`
 }
-
-// SetType sets the resource type on the struct
-func (c *Category) SetType() {
-	c.Type = categoryType
-}

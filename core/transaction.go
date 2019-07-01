@@ -11,8 +11,3 @@ type Transaction struct {
 	Status          string         `json:"status"`
 	Relationships   *Relationships `json:"relationships,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (t *Transaction) SetType() {
-	t.Type = transactionType
-}

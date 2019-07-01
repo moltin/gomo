@@ -14,8 +14,3 @@ type Event struct {
 		SecretKey string `json:"secret_key,omitempty"`
 	} `json:"configuration"`
 }
-
-// SetType sets the resource type on the struct
-func (e *Event) SetType() {
-	e.Type = eventType
-}

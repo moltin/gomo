@@ -35,8 +35,3 @@ type FileMeta struct {
 	} `json:"dimensions"`
 	Timestamps Timestamps `json:"timestamps"`
 }
-
-// SetType sets the resource type on the struct
-func (f *File) SetType() {
-	f.Type = fileType
-}

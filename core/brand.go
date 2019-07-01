@@ -18,8 +18,3 @@ type Brand struct {
 type BrandIncludes struct {
 	Products []Product `json:"products"`
 }
-
-// SetType sets the resource type on the struct
-func (b *Brand) SetType() {
-	b.Type = brandType
-}

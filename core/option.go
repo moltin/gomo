@@ -8,8 +8,3 @@ type Option struct {
 	Description string     `json:"description"`
 	Modifiers   []Modifier `json:"modifiers"`
 }
-
-// SetType sets the resource type on the struct
-func (o *Option) SetType() {
-	o.Type = optionType
-}

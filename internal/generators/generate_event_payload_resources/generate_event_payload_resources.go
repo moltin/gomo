@@ -34,6 +34,8 @@ func main() {
 	defer f.Close()
 	fmt.Fprintln(f, `package core`)
 	fmt.Fprintln(f, ``)
+	fmt.Fprintln(f, `//go:generate go run ../internal/generators/generate_event_payload_resources`)
+	fmt.Fprintln(f, ``)
 	for t, n := range resources {
 		fmt.Fprintf(f, "type EventPayload%s struct {\n", t)
 		fmt.Fprintf(f, "	Data %s `json:\"%s\"`\n", t, n)

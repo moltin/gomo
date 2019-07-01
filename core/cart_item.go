@@ -41,8 +41,3 @@ type CartItemMeta struct {
 	DisplayPrice DisplayPriceWrapper `json:"display_price,omitempty"`
 	Timestamps   Timestamps          `json:"timestamps,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (ci *CartItem) SetType() {
-	ci.Type = cartItemType
-}

@@ -36,8 +36,3 @@ func (p *CustomerPassword) UnmarshalJSON(b []byte) error {
 	p.Password = ""
 	return nil
 }
-
-// SetType sets the resource type on the struct
-func (c *Customer) SetType() {
-	c.Type = customerType
-}
