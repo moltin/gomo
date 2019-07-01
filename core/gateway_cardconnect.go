@@ -11,8 +11,3 @@ type CardConnectGateway struct {
 	Password   string `json:"password"`
 	MerchantID string `json:"merchant_id"`
 }
-
-// SetType sets the resource type on the struct
-func (c *CardConnectGateway) SetType() {
-	c.Type = gatewayType
-}

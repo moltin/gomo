@@ -61,8 +61,3 @@ type ProductIncludes struct {
 	MainImage   File         `json:"main_image"`
 	MainImages  []File       `json:"main_images"`
 }
-
-// SetType sets the resource type on the struct
-func (p *Product) SetType() {
-	p.Type = productType
-}

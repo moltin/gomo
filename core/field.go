@@ -69,8 +69,3 @@ func (f *Field) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
-
-// SetType sets the resource type on the struct
-func (f *Field) SetType() {
-	f.Type = fieldType
-}

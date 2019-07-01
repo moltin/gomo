@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-//go:generate go run ../internal/generators/generate_event_payload_resources
-
 // EventPayload represents the payload delivered to a webhook URL.
 // See https://docs.moltin.com/api/advanced/events/event-payload
 type EventPayload struct {

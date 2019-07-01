@@ -11,8 +11,3 @@ type AdyenGateway struct {
 	Password        string `json:"password"`
 	MerchantAccount string `json:"merchant_account"`
 }
-
-// SetType sets the resource type on the struct
-func (a *AdyenGateway) SetType() {
-	a.Type = gatewayType
-}

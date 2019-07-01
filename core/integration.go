@@ -20,8 +20,3 @@ type IntegrationConfiguration struct {
 	URL       string `json:"url"`
 	SecretKey string `json:"secret_key,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (i *Integration) SetType() {
-	i.Type = integrationType
-}

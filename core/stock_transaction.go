@@ -8,8 +8,3 @@ type StockTransaction struct {
 	ProductID string `json:"product_id"`
 	Quantity  int32  `json:"quantity"`
 }
-
-// SetType sets the resource type on the struct
-func (st *StockTransaction) SetType() {
-	st.Type = stockTransactionType
-}

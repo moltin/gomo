@@ -8,15 +8,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func TestModifierType(t *testing.T) {
-	m := Modifier{}
-	m.SetType()
-
-	if m.Type != "modifier" {
-		t.Errorf("Modifier did not return correct type: `%s`", m.Type)
-	}
-}
-
 func TestModifierMarshalJSON(t *testing.T) {
 	for _, test := range []struct {
 		name     string

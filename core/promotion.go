@@ -25,8 +25,3 @@ type PromotionCurrency struct {
 	Amount     int32   `json:"amount,omitempty"`
 	Percentage float32 `json:"percentage,omitempty"`
 }
-
-// SetType sets the resource type on the struct
-func (p *Promotion) SetType() {
-	p.Type = promotionType
-}

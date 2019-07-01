@@ -17,7 +17,3 @@ type Address struct {
 	Postcode     string `json:"postcode"`
 	Country      string `json:"country"`
 }
-
-func (a *Address) SetType() {
-	a.Type = addressType
-}

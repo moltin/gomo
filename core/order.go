@@ -54,8 +54,3 @@ type OrderShippingAddress struct {
 	Country      string `json:"country"`
 	Instructions string `json:"instructions"`
 }
-
-// SetType sets the resource type on the struct
-func (o *Order) SetType() {
-	o.Type = orderType
-}

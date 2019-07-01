@@ -11,8 +11,3 @@ type BraintreeGateway struct {
 	PrivateKey  string `json:"private_key"`
 	MerchantID  string `json:"merchant_id"`
 }
-
-// SetType sets the resource type on the struct
-func (b *BraintreeGateway) SetType() {
-	b.Type = gatewayType
-}
