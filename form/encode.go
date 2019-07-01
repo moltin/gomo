@@ -10,14 +10,56 @@ import (
 	"strings"
 )
 
+type File struct {
+	Name    string
+	Content io.Reader
+}
+
+type param interface {
+	WriteTo(*multipart.Writer) error
+}
+
+type arg struct {
+	name  string
+	value string
+}
+
+func (a arg) WriteTo(w *multipart.Writer) error {
+	fw, err := w.CreateFormField(a.name)
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(fw, a.value)
+	fw.Write([]byte{}) // fails without this?
+	return nil
+}
+
+type file struct {
+	name     string
+	fileName string
+	content  io.Reader
+}
+
+func (f file) WriteTo(w *multipart.Writer) error {
+	fw, err := w.CreateFormFile(f.name, f.fileName)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(fw, f.content)
+	if err != nil {
+		return err
+	}
+	fw.Write([]byte{}) // fails without this?
+	return nil
+}
+
 // Encode encodes the struct s to a multpart form returning the request
 // body, the content type (including boundary) for the form or an error
 func Encode(s interface{}) ([]byte, string, error) {
 	return buildForm(buildParams(s))
 }
 
-func buildParams(s interface{}) map[string]io.Reader {
-	params := make(map[string]io.Reader)
+func buildParams(s interface{}) (params []param) {
 	v := reflect.ValueOf(s)
 	t := v.Type()
 	switch k := t.Kind(); k {
@@ -40,30 +82,35 @@ func buildParams(s interface{}) map[string]io.Reader {
 			continue
 		}
 		if fv.CanInterface() {
-			r, ok := fv.Interface().(io.Reader)
-			if ok {
-				params[name] = r
+			f, _ := fv.Interface().(*File)
+			if f == nil {
+				fs, ok := fv.Interface().(File)
+				if ok {
+					f = &fs
+				}
+			}
+			if f != nil {
+				params = append(params, file{
+					name:     name,
+					fileName: f.Name,
+					content:  f.Content,
+				})
 				continue
 			}
 		}
-		params[name] = strings.NewReader(encodeValue(fv))
+		params = append(params, arg{
+			name:  name,
+			value: encodeValue(fv),
+		})
 	}
 	return params
 }
 
-func buildForm(params map[string]io.Reader) ([]byte, string, error) {
+func buildForm(params []param) ([]byte, string, error) {
 	var out bytes.Buffer
 	writer := multipart.NewWriter(&out)
-	for key, r := range params {
-		if r == nil {
-			continue
-		}
-		fw, err := writer.CreateFormField(key)
-		if err != nil {
-			return nil, "", err
-		}
-		_, err = io.Copy(fw, r)
-		if err != nil {
+	for _, param := range params {
+		if err := param.WriteTo(writer); err != nil {
 			return nil, "", err
 		}
 	}

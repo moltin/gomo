@@ -19,7 +19,7 @@ func Body(target interface{}) RequestResource {
 // Form sets multipart/form data for a Post() or Put() request
 func Form(target interface{}) RequestResource {
 	return func(w *wrapper) {
-		w.body = formBody{data: target}
+		w.body = &formBody{data: target}
 
 		// set the resource type if the entity has the SetType method
 		if resource, ok := target.(interface{ SetType() }); ok {

@@ -1,72 +1,57 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"mime/multipart"
+	"log"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/moltin/gomo"
 	"github.com/moltin/gomo/core"
+	"github.com/moltin/gomo/form"
 )
 
 func main() {
-	filename := "example_image.jpeg"
-	clientID := os.Getenv("MOLTIN_CLIENT_ID")
-	clientSecret := os.Getenv("MOLTIN_CLIENT_SECRET")
+	filename := "example-image.png"
 
-	// Instantiate a new client and provide an options function to override the default authentication method
-	// Options can be found at https://github.com/moltin/gomo/blob/master/options.go
-	client := gomo.NewClient(gomo.ClientCredentials(clientID, clientSecret))
-
-	// Execute the debug option function for the client in order to turn on debugging
-	client.EnableDebug()
+	// Instantiate a new client
+	client := gomo.NewClient()
 
 	// Authenticate against the Moltin API
 	err := client.Authenticate()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	bodyBuf := &bytes.Buffer{}
-	bodyWriter := multipart.NewWriter(bodyBuf)
-
-	// this step is very important
-	fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filename)
+	// Open the image to upload
+	img, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("error writing to buffer")
-		fmt.Println(err)
+		log.Fatal(err)
+	}
+	defer img.Close()
+
+	// Define the image to be uploaded, including the file
+	// to be read
+	file := core.File{
+		FileName: filename,
+		Public:   true,
+		MimeType: "image/png",
+		FileSize: 555,
+		File: &form.File{
+			Name:    filename,
+			Content: img,
+		},
 	}
 
-	// open file handle
-	fh, err := os.Open(filename)
+	// Upload the image
+	err = client.Post(
+		"files",
+		gomo.Form(file),
+		gomo.Data(&file),
+	)
 	if err != nil {
-		fmt.Println("error opening file")
-		fmt.Println(err)
-	}
-	defer fh.Close()
-
-	//iocopy
-	_, err = io.Copy(fileWriter, fh)
-	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	bodyWriter.Close()
-
-	fileRequest := core.FileUploadRequest{
-		Public: false,
-		File:   *bodyBuf,
-	}
-
-	var fileResponse core.File
-
-	err = client.Post("/files", gomo.Body(fileRequest), gomo.Data(&fileResponse))
-
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(fileResponse)
-	}
+	// Print the resulting file object
+	spew.Dump(file)
 }

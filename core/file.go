@@ -2,7 +2,8 @@ package core
 
 import (
 	"bytes"
-	"io"
+
+	"github.com/moltin/gomo/form"
 )
 
 // FileUploadRequest represents a request to upload a file to Moltin
@@ -23,8 +24,8 @@ type File struct {
 	Link     *struct {
 		Href string `json:"href"`
 	} `json:"link" form:"-"`
-	Links *Links    `json:"links,omitempty" form:"-"`
-	File  io.Reader `json:"-" form:"file"`
+	Links *Links     `json:"links,omitempty" form:"-"`
+	File  *form.File `json:"-" form:"file"`
 }
 
 // FileMeta represents the meta object for a moltin file entity
